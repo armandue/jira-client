@@ -1,0 +1,36 @@
+<nav class="navbar navbar-light bg-dark">
+  <span class="navbar-brand mb-0 ml-5 h1 text-light">
+      <span class="mr-3 border border-light rounded p-1 font-weight-bold hand-pointer"
+        data-toggle="modal" data-target="#infoModal">JS</span>
+      Jira Secretary
+  </span>
+</nav>
+<div class="modal fade bd-example-modal-lg" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Words from Cin</h5>
+      </div>
+      <div class="modal-body">
+        <p>
+            This is a small project, which serves for generate timesheet of worklogs from Jira app.
+        </p>
+        <p>
+            It is composed by a back end (supported by App engine), and a front end.
+        </p>
+        <p>
+            The back end is responsible for making http request to Jira with Jira api, processing data,
+            and sending them to front end. Meantime, the front end is responsible for generate timesheet file,
+            summarise data, and give some stupid words from the summary (It is even not a good try).
+        </p>
+        <p class="text-secondary font-italic font-weight-light">
+            (PS: it only works for employees in Ubiest)
+        </p>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

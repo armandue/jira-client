@@ -1,0 +1,179 @@
+<div class="container mt-5">
+    <div class="jumbotron">
+      <h1 class="display-4">Hello, Jira!</h1>
+      <p class="lead">This is a simple web app, filling out the form to generate timesheet file or make a stupid analyze from Jira.</p>
+      <p class="lead">Hope you have some fun with it.</p>
+      <hr class="my-4">
+      <form #jiraForm="ngForm">
+        <div class="form-group row">
+          <label for="username" class="col-sm-2 col-form-label">Username</label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="username"
+                placeholder="Username (Jira)" [(ngModel)]="user.username" required
+                name="username">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="password" class="col-sm-2 col-form-label">Password</label>
+          <div class="col-sm-6">
+            <input type="password" class="form-control" id="password"
+                [(ngModel)]="user.password" placeholder="Password (Jira)" required
+                name="password">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="selectedMonth" class="col-sm-2 col-form-label">Month</label>
+          <div class="col-sm-6">
+              <select class="form-control" id="selectedMonth"
+                [(ngModel)]="selectedMonth" name="selectedMonth">
+                <option *ngFor="let month of optionalMonthes"
+                    [value]="month">
+                    {{month}}
+                </option>
+              </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="model" class="col-sm-2 col-form-label">Model</label>
+          <div class="col-sm-6">
+              <select class="form-control" id="model" [(ngModel)]="selectedModel"
+                name="selectedModel">
+                <option *ngFor="let model of optionalModels"
+                    [value]="model">
+                    {{model}}
+                </option>
+              </select>
+          </div>
+          <div class="col-sm-4"></div>
+          <div class="col-sm-2"></div>
+          <div class="col-sm-10 text-secondary font-italic font-weight-light">
+              PS:
+              <span *ngIf="selectedModel == 'Default hour'">
+                  Each worked day would be automatically filled with 8 hours.
+              </span>
+              <span *ngIf="selectedModel == 'Exact hour'">
+                  Each worked day would be filled with exact hours logged in Jira with limited precision.
+              </span>
+          </div>
+        </div>
+      </form>
+      <p class="lead row">
+        <span class="col-sm-2"></span>
+        <span class="col-sm-8">
+            <button class="btn btn-secondary"
+                role="button"
+                [disabled]="!jiraForm.valid"
+                (click)="downloadFile()">Download</button>
+            <button class="btn btn-secondary"
+                [disabled]="!jiraForm.valid"
+                role="button"
+                (click)="analyze()"
+                data-toggle="modal"
+                data-target="#analyzeModal">Analyze</button>
+        </span>
+      </p>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="analyzeModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+            <span *ngIf="!loading">After a lot of thinking...</span>
+            <span *ngIf="loading">Thinking and thinking harder...</span>
+        </h5>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="!loading && analyzeData.projects.length > 0">
+            <div class="row">
+                <div class="col-12">
+                    <div style="display: block">
+                      <canvas baseChart
+                              [data]="doughnut.data"
+                              [labels]="doughnut.labels"
+                              [chartType]="doughnut.type"
+                              [options]="doughnut.options"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-1"></div>
+                <div class="col-10">
+                    <p>A few kidding words:</p>
+                    <p>
+                        {{conclusion}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="loading">
+            <img class="loading-image my-5" src="../../../images/cat.png"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-secondary btn-sm"
+            data-dismiss="modal"
+            [disabled]="loading">Agree and donate</button>
+        <div data-target="#disagreeModal" data-toggle="modal">
+            <button type="button"
+                class="btn btn-secondary btn-sm"
+                [disabled]="loading"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-dismiss="modal"
+                title="Don't do that, please.">Ignore and close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="errorModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+            Sign in failed
+        </h5>
+      </div>
+      <div class="modal-body">
+          <p>Who are you, what are you doing?</p>
+          <p>Do you really think that you are Santa Claus and get inside with wrong password?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-secondary btn-sm"
+            data-dismiss="modal">
+            Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="disagreeModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+            Refuse
+        </h5>
+      </div>
+      <div class="modal-body">
+          <p>Hi, how r u, man?</p>
+          <h1>You must be the <span class="text-danger">Shylock</span> nearby.</h1>
+          <p>Nice to meet u.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+            class="btn btn-secondary btn-sm"
+            data-dismiss="modal">
+            Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
