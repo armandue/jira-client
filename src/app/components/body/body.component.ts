@@ -1,13 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {saveAs} from 'file-saver/FileSaver';
+import { NotificationsService } from 'angular2-notifications';
 import * as moment from 'moment';
 import * as $ from 'jquery';
 
 import './body.component.less';
 import {WorklogService} from '../shared/jira.service';
 import {ConclusionService} from '../shared/conclusion.service';
-import {User, ProjectResource, IssueResource} from '../shared/jira.class';
+import {ProjectResource, IssueResource} from '../shared/jira.class';
 
 const numOfMonth: number = 12;
 const SECONDS_IN_HOUR: number = (60 * 60);
@@ -25,18 +26,25 @@ export class JiraBodyComponent implements OnInit {
     optionalMonthes: string[] = [];
     selectedModel: string;
     optionalModels: string[] = [];
-    user: User = new User();
+    username: string = '';
+    token: string = '';
     analyzeData: any;
     loading: boolean = false;
     doughnut: any;
     conclusion: string;
+    version: string;
 
     constructor(private worklogService: WorklogService,
-        private conclusionService: ConclusionService) {}
+        private conclusionService: ConclusionService,
+        private notificationsService: NotificationsService) {}
 
     ngOnInit(): any {
         $(function () {
             $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        this.worklogService.getAppVersion().subscribe(response => {
+            this.version = response;
         });
 
         this.analyzeData = {
@@ -49,7 +57,7 @@ export class JiraBodyComponent implements OnInit {
         };
         this.selectedMonth = this.optionalMonthes[0];
 
-        this.optionalModels = ['Default hour', 'Exact hour'];
+        this.optionalModels = ['Test', 'Default hour', 'Exact hour'];
         this.selectedModel = this.optionalModels[0];
         this.doughnut = {
             data: [],
@@ -68,23 +76,34 @@ export class JiraBodyComponent implements OnInit {
 
     downloadFile() {
         this.setupTimeInterval(this.selectedMonth);
-        let fileName = this.user.username + '-' + this.selectedMonth + '.xlsx';
+        let model = this.getWorklogFileModel(this.selectedModel);
+        let fileName = 'Timesheet-' + this.selectedMonth + '.xlsx';
         this.loading = true;
         this.worklogService.getWorklogFile(this.startDate,
             this.endDate,
-            this.user,
-            this.getWorklogFileModel(this.selectedModel))
+            this.username,
+            this.token,
+            model)
             .subscribe(response => {
                 saveAs(response, fileName);
                 this.loading = false;
-            }, error => this.handleError());
+            }, error => this.handleError(error));
     }
 
     analyze() {
         this.setupTimeInterval(this.selectedMonth);
         this.loading = true;
-        Observable.combineLatest(this.worklogService.analyze(this.startDate, this.endDate, this.user),
-            this.worklogService.getWorklogs(this.startDate, this.endDate, this.user))
+        Observable.combineLatest(this.worklogService.analyze(
+            this.startDate,
+            this.endDate,
+            this.username,
+            this.token),
+            this.worklogService.getWorklogs(
+                this.startDate,
+                this.endDate,
+                this.username,
+                this.token
+            ))
                 .subscribe((response: any[]) => {
                     this.analyzeData.projects = response[0];
                     this.analyzeData.worklogs = response[1];
@@ -110,7 +129,7 @@ export class JiraBodyComponent implements OnInit {
                         }
                     };
                     this.conclusion = this.conclusionService.generateConclusion(response[0], response[1]);
-                }, error => this.handleError());
+                }, error => this.handleError(error));
     }
 
     setupTimeInterval(month: any) {
@@ -125,6 +144,10 @@ export class JiraBodyComponent implements OnInit {
         switch (model) {
             case 'Exact hour': {
                 fileModel = 'EXACT';
+                break;
+            }
+            case 'Test': {
+                fileModel = 'TEST';
                 break;
             }
             case 'Default hour':
@@ -162,8 +185,14 @@ export class JiraBodyComponent implements OnInit {
         return hours;
     }
 
-    handleError() {
+    handleError(error: any) {
         $('.modal').modal('hide');
-        $('#errorModal').modal('show');
+        console.log(error);
+        this.notificationsService.error('Error', error.message, {
+          timeOut: 3000,
+          showProgressBar: true,
+          pauseOnHover: true,
+          clickToClose: true
+        });
     }
 }

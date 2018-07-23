@@ -4,7 +4,7 @@ const proxy = require('proxy-middleware');
 
 module.exports = function () {
   //const proxyOptions = url.parse('https://com-cin-jira.appspot.com');
-  const proxyOptions = url.parse('http://localhost:8080');
+  const proxyOptions = url.parse('http://localhost:5431');
   proxyOptions.route = '/api';
 
   return {

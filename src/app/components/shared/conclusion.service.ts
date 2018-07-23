@@ -28,7 +28,7 @@ const verbMap = {
         project: {
             normal: 'in a smart way, like a Smart on the road.',
             low: 'a little bit slow, but careful to your tasks.',
-            high: 'on a lot of different things, so many threads running in your head.',
+            high: 'on a lot of different things, so many threads running through your head.',
             min: 2,
             max: 4,
             name: 'numOfIssue'
@@ -51,7 +51,7 @@ const verbMap = {
         worklog: {
             normal: 'to go home in time.',
             low: 'to cook dinner.',
-            high: 'your work, from the deepest heart, believe or not.',
+            high: 'your work, from the deepest heart, believe it or not.',
             min: 0.5,
             max: 1,
             name: 'maxHourDifference'

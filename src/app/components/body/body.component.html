@@ -1,7 +1,7 @@
 <div class="container mt-5">
-    <div class="jumbotron">
+    <div class="jumbotron mb-0">
       <h1 class="display-4">Hello, Jira!</h1>
-      <p class="lead">This is a simple web app, filling out the form to generate timesheet file or make a stupid analyze from Jira.</p>
+      <p class="lead">This is a simple web app, filling out the form to generate timesheet file from Jira.</p>
       <p class="lead">Hope you have some fun with it.</p>
       <hr class="my-4">
       <form #jiraForm="ngForm">
@@ -9,16 +9,16 @@
           <label for="username" class="col-sm-2 col-form-label">Username</label>
           <div class="col-sm-6">
             <input type="text" class="form-control" id="username"
-                placeholder="Username (Jira)" [(ngModel)]="user.username" required
+                placeholder="Username (Jira)" [(ngModel)]="username" required
                 name="username">
           </div>
         </div>
         <div class="form-group row">
-          <label for="password" class="col-sm-2 col-form-label">Password</label>
+          <label for="password" class="col-sm-2 col-form-label">Bearer token</label>
           <div class="col-sm-6">
-            <input type="password" class="form-control" id="password"
-                [(ngModel)]="user.password" placeholder="Password (Jira)" required
-                name="password">
+            <input type="text" class="form-control" id="password"
+                [(ngModel)]="token" placeholder="Access token (Jira)" required
+                name="token">
           </div>
         </div>
         <div class="form-group row">
@@ -54,6 +54,9 @@
               <span *ngIf="selectedModel == 'Exact hour'">
                   Each worked day would be filled with exact hours logged in Jira with limited precision.
               </span>
+              <span *ngIf="selectedModel == 'Test'">
+                  Will use test account, no need for username or password.
+              </span>
           </div>
         </div>
       </form>
@@ -62,16 +65,24 @@
         <span class="col-sm-8">
             <button class="btn btn-secondary"
                 role="button"
-                [disabled]="!jiraForm.valid"
+                [disabled]="!jiraForm.valid && selectedModel !== 'Test'"
                 (click)="downloadFile()">Download</button>
-            <button class="btn btn-secondary"
-                [disabled]="!jiraForm.valid"
+<!--            <button class="btn btn-secondary"
+                [disabled]="!jiraForm.valid && selectedModel !== 'Test'"
                 role="button"
                 (click)="analyze()"
                 data-toggle="modal"
                 data-target="#analyzeModal">Analyze</button>
+              -->
         </span>
       </p>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <p class="text-right font-italic text-secondary">Version: {{version}}</p>
+        </div>
     </div>
 </div>
 
@@ -100,72 +111,24 @@
             <div class="row">
                 <div class="col-1"></div>
                 <div class="col-10">
-                    <p>A few kidding words:</p>
+                    <p>A few words:</p>
                     <p>
                         {{conclusion}}
                     </p>
                 </div>
             </div>
         </div>
+        <div *ngIf="!loading && analyzeData.projects.length == 0">
+            <div class="row">
+                <div class="col-1"></div>
+                <div class="col-10">
+                    <p>Sorry, there is no available data in this month, maybe you can try with another month</p>
+                </div>
+            </div>
+        </div>
         <div *ngIf="loading">
             <img class="loading-image my-5" src="../../../images/cat.png"/>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button"
-            class="btn btn-secondary btn-sm"
-            data-dismiss="modal"
-            [disabled]="loading">Agree and donate</button>
-        <div data-target="#disagreeModal" data-toggle="modal">
-            <button type="button"
-                class="btn btn-secondary btn-sm"
-                [disabled]="loading"
-                data-toggle="tooltip"
-                data-placement="top"
-                data-dismiss="modal"
-                title="Don't do that, please.">Ignore and close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="errorModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-            Sign in failed
-        </h5>
-      </div>
-      <div class="modal-body">
-          <p>Who are you, what are you doing?</p>
-          <p>Do you really think that you are Santa Claus and get inside with wrong password?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button"
-            class="btn btn-secondary btn-sm"
-            data-dismiss="modal">
-            Close
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="disagreeModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-            Refuse
-        </h5>
-      </div>
-      <div class="modal-body">
-          <p>Hi, how r u, man?</p>
-          <h1>You must be the <span class="text-danger">Shylock</span> nearby.</h1>
-          <p>Nice to meet u.</p>
       </div>
       <div class="modal-footer">
         <button type="button"

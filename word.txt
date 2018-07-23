@@ -1,0 +1,21 @@
+This is a small project, which serves for generate timesheet of worklogs from Jira.
+
+It is composed by a front end (Angular), and a back end (Spring boot).
+
+The back end is responsible for making http request to Jira with Jira api, processing data, and sending them to front end. Meantime, the front end is responsible for generating timesheet file, summarise data, and give some analysis based on the data from Jira (It is even not a good try).
+
+(PS: it only works for employees in Ubiest)
+
+This is a simple web app, filling out the form to generate timesheet file or make a stupid analyze from Jira.
+
+Hope you have some fun with it.
+
+Each worked day would be automatically filled with 8 hours.
+
+Each worked day would be filled with exact hours logged in Jira with limited precision.
+
+Will use test account, no need for username or password.
+
+you worked on a lot of different things, so many threads running in your head.
+
+you like your work, from the deepest heart, believe or notwor.
